@@ -89,6 +89,18 @@ CREATE TABLE evaluation_scores (
   FOREIGN KEY (category_id) REFERENCES evaluation_categories(id)
 );
 
+CREATE TABLE external_user_refs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    member_id INT NOT NULL,                  -- อ้างอิง member ภายในระบบ
+    external_user_id VARCHAR(100) NOT NULL,  -- ID ของ user จาก API ภายนอก
+    source_system VARCHAR(50) NOT NULL,      -- ชื่อระบบ เช่น 'jvncUser'
+    linked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_synced_at TIMESTAMP NULL,           -- เวลา sync ล่าสุด
+    FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE,
+    UNIQUE (member_id, source_system),       -- ป้องกันซ้ำในระบบเดียวกัน
+    UNIQUE (external_user_id, source_system) -- ป้องกันซ้ำจากฝั่ง API
+);
+
 -- ข้อมูลเริ่มต้น
 INSERT INTO roles (id, name) VALUES (1, 'Admin'), (2, 'User');
 
