@@ -5,7 +5,7 @@
   <form id="login-form">
     <div class="mb-3">
       <label for="email" class="form-label">อีเมล</label>
-      <input type="email" id="email" name="email" class="form-control" required>
+      <input type="text" id="email" name="email" class="form-control" required>
     </div>
     <div class="mb-3">
       <label for="password" class="form-label">รหัสผ่าน</label>
@@ -28,7 +28,6 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
     const role_id = res.data.role_id;
 
     localStorage.setItem('access_token', token);
-    localStorage.setItem('role_id', role_id);
 
     Swal.fire({
       icon: 'success',

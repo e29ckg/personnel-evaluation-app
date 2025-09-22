@@ -3,15 +3,16 @@
 <div id="app" class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h4>รายชื่อสมาชิก</h4>
-    <button class="btn btn-success" @click="showAddModal = true">➕ เพิ่มสมาชิก</button>
+    <button class="btn btn-success" ref="btnAddModal" @click="showAddModal = true" data-bs-toggle="modal" data-bs-target="#showAddModal">➕ เพิ่มสมาชิก</button>
   </div>
 
   <div class="row">
     <div class="col-12 mb-2" v-for="m in members" :key="m.id">
       <div class="card">
         <div class="card-body">
-          <h5>{{ m.full_name }}</h5>
-          <p>{{ m.email }}</p>
+          <h5>{{m.username}} {{ m.fullName }}</h5>
+          <p>{{ m.judgeStatusName }}</p>
+          <button class="btn btn-primary btn-sm" @click="openDetailModal(m)">รายละเอียด</button>
           <button class="btn btn-primary btn-sm" @click="openEditModal(m)">แก้ไข</button>
           <button class="btn btn-danger btn-sm" @click="deleteMember(m.id)">ลบ</button>
           <a :href="'evaluate.php?target_id=' + m.id" class="btn btn-success btn-sm">ประเมิน</a>
@@ -21,12 +22,12 @@
   </div>
 
   <!-- Add Member Modal -->
-  <div class="modal fade" ref="showAddModal" tabindex="-1" v-if="showAddModal" aria-labelledby="showEditModal" aria-hidden="true">
+  <div class="modal fade" id="showAddModal" ref="showAddModal" tabindex="-1" aria-labelledby="showAddModal" aria-hidden="true">
     <div class="modal-dialog">
       <form class="modal-content" @submit.prevent="addMember">
         <div class="modal-header">
           <h5 class="modal-title">เพิ่มสมาชิกใหม่</h5>
-          <button type="button" class="btn-close" @click="showAddModal = false"></button>
+          <button type="button" class="btn-close" ref="closeAddModal" @click="closeAddModal" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <input v-model="form.username" class="form-control mb-2" placeholder="ชื่อผู้ใช้" required>
@@ -39,38 +40,14 @@
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">บันทึก</button>
-          <button type="button" class="btn btn-secondary" @click="showAddModal = false">ยกเลิก</button>
+          <button type="button" class="btn btn-secondary" @click="closeAddModal">ยกเลิก</button>
         </div>
+        {{form}}
       </form>
     </div>
-  </div>
-
-  <!-- Edit Member Modal -->
-  <div class="modal fade" ref="showEditModal" id="showEditModal" tabindex="-1" aria-labelledby="showEditModal" aria-hidden="true" v-if="showEditModal">
-    <div class="modal-dialog">
-      <form class="modal-content" @submit.prevent="editMember">
-        <div class="modal-header">
-          <h5 class="modal-title">แก้ไขสมาชิก</h5>
-          <button type="button" class="btn-close" @click="showEditModal = false"></button>
-        </div>
-        <div class="modal-body">
-          <input v-model="form.username" class="form-control mb-2" required>
-          <input v-model="form.email" class="form-control mb-2" required>
-          <select v-model="form.role_id" class="form-select">
-            <option value="2">ผู้ใช้ทั่วไป</option>
-            <option value="1">ผู้ดูแลระบบ</option>
-          </select>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">บันทึกการแก้ไข</button>
-          <button type="button" class="btn btn-secondary" @click="showEditModal = false">ยกเลิก</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  </div>  
+  
 </div>
-
-
 
 <?php include 'includes/footer.php'; ?>
 <script>
@@ -115,7 +92,12 @@ createApp({
     openAddModal() {
       this.form = { id: null, username: '', email: '', password: '', role_id: 2 };
       this.showAddModal = true;
-      this.$refs.showAddModal.modal('show');
+      this.$refs.showAddModal.click();
+    },
+    closeAddModal() {
+      this.showAddModal = false;
+      this.form = { id: null, username: '', email: '', password: '', role_id: 2 };
+      this.$refs.closeAddModal.click();
     },
     addMember() {
       const payload = new FormData();
@@ -128,6 +110,7 @@ createApp({
       }).then(() => {
         Swal.fire({ icon: 'success', title: 'เพิ่มสมาชิกเรียบร้อย' });
         this.showAddModal = false;
+        this.closeAddModal();
         this.loadMembers();
       }).catch(() => {
         Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเพิ่มสมาชิก' });
@@ -136,10 +119,8 @@ createApp({
     openEditModal(member) {
       this.form = { ...member, password: '' };
       this.showEditModal = true;
-      this.$nextTick(() => {
-        const modal = new bootstrap.Modal(this.$refs.showEditModal);
-        modal.show();
-      });
+      this.showAddModal = false;
+      this.$refs.btnAddModal.click();
     },
     editMember() {
       const payload = new FormData();
@@ -176,7 +157,23 @@ createApp({
           });
         }
       });
-    }
+    },
+    openDetailModal(member) {
+      let details = `
+        <p><strong>ชื่อผู้ใช้:</strong> ${member.username}</p>
+        <p><strong>ชื่อเต็ม:</strong> ${member.full_name || '-'}</p>
+        <p><strong>อีเมล:</strong> ${member.email}</p>
+        <p><strong>บทบาท:</strong> ${member.role_name || '-'}</p>
+      `;
+      if (member.avatar_url) {
+        details += `<p><strong>รูปโปรไฟล์:</strong><br><img src="${member.avatar_url}" alt="Avatar" style="max-width: 100px; max-height: 100px;"></p>`;
+      }
+      Swal.fire({
+        title: 'รายละเอียดสมาชิก',
+        html: details,
+        confirmButtonText: 'ปิด'
+      });
+    } 
   }
 }).mount('#app');
 </script>

@@ -1,5 +1,10 @@
 <?php
-require '../includes/require_admin.php';
+require '../includes/jwt_guard.php';
+
+header('Content-Type: application/json');
+
+// ดึงสถิติพื้นฐาน (ตัวอย่าง)
+
 
 try {
   $members = $pdo->query("SELECT COUNT(*) FROM members")->fetchColumn();
