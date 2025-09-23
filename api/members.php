@@ -1,5 +1,5 @@
 <?php
-require '../includes/jwt_guard.php';
+require '../includes/jwt_guard_frontend.php';
 
 header('Content-Type: application/json');
 

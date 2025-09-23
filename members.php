@@ -1,4 +1,5 @@
-<?php include 'includes/layout.php'; ?>
+<?php include 'includes/layout.php';
+require 'includes/jwt_guard_frontend.php'; ?>
 
 <div id="app" class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-3">

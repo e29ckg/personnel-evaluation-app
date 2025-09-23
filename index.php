@@ -1,4 +1,7 @@
-<?php include 'includes/layout.php'; ?>
+<?php 
+include 'includes/layout.php'; 
+require 'includes/jwt_guard_frontend.php';
+?>
 <div class="container mt-4">
   <h3>ระบบประเมินบุคคล</h3>
 

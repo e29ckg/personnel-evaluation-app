@@ -38,6 +38,8 @@ preg_match('/Authorization:\sBearer\s(\S+)/i', $headers, $matches);
 $token = $matches[1] ?? null;
 
 if ($token) {
+  $_SESSION['access_token'] = $token;
+  // ส่ง token กลับไปยัง client
   http_response_code(200);
   echo json_encode([
     'token' => $token,

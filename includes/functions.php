@@ -108,3 +108,8 @@ function get_api($url, $token) {
     curl_close($ch);
     return ['http_code' => $httpCode, 'response' => json_decode($response, true)];
 }
+
+function redirect_to_login() {
+    header('Location: login.php');
+    exit;
+}

@@ -8,8 +8,9 @@ header('Content-Type: application/json');
 $http_response_headers = [];
 $token = get_bearer_token();
 if (!$token) {
-  http_response_code(401);
-  echo json_encode(['error' => 'Missing or invalid Authorization header']);
+  redirect_to_login();
+  // http_response_code(401);
+  // echo json_encode(['error' => 'Missing or invalid Authorization header']);
   exit;
 }
 // ดึงข้อมูลโปรไฟล์ผู้ใช้จาก API ภายนอก
